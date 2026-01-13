@@ -9,7 +9,15 @@ public final class Game {
     public init(fen: String) {
         board = Board(fen: fen)
     }
-
+    
+    /// SAN meaning Standard Algebraic Notation
+    /// Allows making a move with algebraic notation only
+    public func make(moveAsSan: String) throws -> Bool {
+        let algebraic = try AlgebraicParser.parse(moveAsSan)
+        let resolved = try MoveResolver.resolve(algebraic: algebraic, board: board)
+        return make(move: resolved)
+    }
+    
     public func make(move: Move) -> Bool {
         guard MoveValidator.isLegal(move: move, on: board) else { return false }
 

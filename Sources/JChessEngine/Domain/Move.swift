@@ -9,7 +9,7 @@ public struct Move {
     public let from: Int
     public let to: Int
     public let type: MoveType
-
+    
     public init(from: Int, to: Int, type: MoveType = .normal) {
         self.from = from
         self.to = to
@@ -21,7 +21,7 @@ public struct Move {
         self.to = Move.squareIndex(to)
         self.type = type
     }
-
+    
     private static func squareIndex(_ s: String) -> Int {
         let chars = Array(s.lowercased())
         let file = Int(chars[0].unicodeScalars.first!.value - Character("a").unicodeScalars.first!.value)
