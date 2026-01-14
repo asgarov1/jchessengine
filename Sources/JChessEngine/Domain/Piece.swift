@@ -2,7 +2,7 @@
 public enum Color: String {
     case white = "w"
     case black = "b"
-
+    
     public var opposite: Color {
         self == .white ? .black : .white
     }
@@ -10,6 +10,10 @@ public enum Color: String {
 
 public enum PieceType: String {
     case pawn = "p", knight = "n", bishop = "b", rook = "r", queen = "q", king = "k"
+    
+    var isSliding: Bool {
+        self == .rook || self == .bishop || self == .queen
+    }
 }
 
 public struct Piece {

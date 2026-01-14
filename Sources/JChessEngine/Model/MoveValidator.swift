@@ -5,27 +5,86 @@ public enum MoveValidator {
         guard let piece = board.squares[move.from] else { return false }
         if piece.color != board.sideToMove { return false }
 
-        switch move.type {
-        case .castleKingSide:
-            return canCastle(kingSide: true, board: board)
-        case .castleQueenSide:
-            return canCastle(kingSide: false, board: board)
-        case .normal:
-            return basicMovement(piece: piece, move: move)
+        let target = board.squares[move.to]
+
+        // cannot capture own piece
+        if let target, target.color == piece.color {
+            return false
         }
+
+        // Step 1: movement validation
+        let moveIsValid: Bool
+
+        switch move.type {
+
+        case .castleKingSide:
+            moveIsValid = canCastle(kingSide: true, board: board)
+
+        case .castleQueenSide:
+            moveIsValid = canCastle(kingSide: false, board: board)
+
+        case .normal:
+            guard basicMovement(piece: piece, move: move, target: target) else {
+                return false
+            }
+
+            if piece.type.isSliding {
+                guard MovementUtil.isPathClear(from: move.from, to: move.to, board: board) else {
+                    return false
+                }
+            }
+
+            moveIsValid = true
+        }
+
+        if !moveIsValid { return false }
+
+        // Step 2: king safety (APPLIES TO ALL MOVE TYPES)
+        return doesNotLeaveKingInCheck(move: move, board: board)
     }
 
-    private static func basicMovement(piece: Piece, move: Move) -> Bool {
-        let dx = abs((move.from % 8) - (move.to % 8))
-        let dy = abs((move.from / 8) - (move.to / 8))
+
+    private static func basicMovement(
+        piece: Piece,
+        move: Move,
+        target: Piece?
+    ) -> Bool {
+
+        let fromFile = move.from % 8
+        let fromRank = move.from / 8
+        let toFile = move.to % 8
+        let toRank = move.to / 8
+
+        let dx = abs(fromFile - toFile)
+        let dy = abs(fromRank - toRank)
 
         switch piece.type {
-        case .rook: return dx == 0 || dy == 0
-        case .bishop: return dx == dy
-        case .queen: return dx == dy || dx == 0 || dy == 0
-        case .knight: return (dx == 1 && dy == 2) || (dx == 2 && dy == 1)
-        case .king: return dx <= 1 && dy <= 1
-        case .pawn: return dx == 0 && dy == 1
+
+        case .rook:
+            return dx == 0 || dy == 0
+
+        case .bishop:
+            return dx == dy
+
+        case .queen:
+            return dx == dy || dx == 0 || dy == 0
+
+        case .knight:
+            return (dx == 1 && dy == 2) || (dx == 2 && dy == 1)
+
+        case .king:
+            return dx <= 1 && dy <= 1
+
+        case .pawn:
+            let direction = piece.color == .white ? 1 : -1
+
+            // capture
+            if target != nil {
+                return dx == 1 && (toRank - fromRank) == direction
+            }
+
+            // quiet move
+            return dx == 0 && (toRank - fromRank) == direction
         }
     }
 
@@ -54,5 +113,30 @@ public enum MoveValidator {
         }
 
         return true
+    }
+    
+    private static func doesNotLeaveKingInCheck(move: Move, board: Board) -> Bool {
+        guard let piece = board.squares[move.from] else { return false }
+        
+        let colorToMove = board.sideToMove
+        if piece.type == .king {
+            // if king is making move check that target is not under check
+            return !AttackDetector.isSquareAttacked(
+                move.to,
+                by: colorToMove.opposite,
+                board: board
+            )
+        }
+
+        // simulateMove
+        var testBoard = board.copy()
+        testBoard.squares[move.to] = testBoard.squares[move.from]
+        testBoard.squares[move.from] = nil
+        
+        return !AttackDetector.isSquareAttacked(
+            testBoard.kingSquare(of: colorToMove),
+            by: colorToMove.opposite,
+            board: testBoard
+        )
     }
 }

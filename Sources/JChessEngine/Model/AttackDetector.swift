@@ -1,7 +1,7 @@
 
 public enum AttackDetector {
     public static func isSquareAttacked(_ square: String, by color: Color, board: Board) -> Bool {
-        let squareAsInt = AttackDetector.squareIndex(square)
+        let squareAsInt = CoordinateUtil.squareIndex(square)
         return isSquareAttacked(squareAsInt, by: color, board: board)
     }
     
@@ -21,31 +21,25 @@ public enum AttackDetector {
 
             case .rook:
                 if dx == 0 {
-                    let stepY = dy > 0 ? 1 : -1
-                    if isPathClear(from: i, to: square, stepX: 0, stepY: stepY, board: board) {
+                    if MovementUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 } else if dy == 0 {
-                    let stepX = dx > 0 ? 1 : -1
-                    if isPathClear(from: i, to: square, stepX: stepX, stepY: 0, board: board) {
+                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }
 
             case .bishop:
                 if abs(dx) == abs(dy) {
-                    let stepX = dx > 0 ? 1 : -1
-                    let stepY = dy > 0 ? 1 : -1
-                    if isPathClear(from: i, to: square, stepX: stepX, stepY: stepY, board: board) {
+                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }
 
             case .queen:
                 if dx == 0 || dy == 0 || abs(dx) == abs(dy) {
-                    let stepX = dx == 0 ? 0 : (dx > 0 ? 1 : -1)
-                    let stepY = dy == 0 ? 0 : (dy > 0 ? 1 : -1)
-                    if isPathClear(from: i, to: square, stepX: stepX, stepY: stepY, board: board) {
+                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }
@@ -68,41 +62,5 @@ public enum AttackDetector {
             }
         }
         return false
-    }
-
-    
-    private static func isPathClear(from: Int, to: Int, stepX: Int, stepY: Int, board: Board) -> Bool {
-        var x = (from % 8) + stepX
-        var y = (from / 8) + stepY
-
-        let targetX = to % 8
-        let targetY = to / 8
-
-        while x != targetX || y != targetY {
-            let idx = y * 8 + x
-            if board.squares[idx] != nil {
-                return false
-            }
-            x += stepX
-            y += stepY
-        }
-        return true
-    }
-
-    
-    public static func squareIndex(_ algebraic: String) -> Int {
-        precondition(algebraic.count == 2, "Invalid algebraic notation")
-
-        let chars = Array(algebraic.lowercased())
-        let fileChar = chars[0]
-        let rankChar = chars[1]
-
-        precondition(fileChar >= "a" && fileChar <= "h", "Invalid file")
-        precondition(rankChar >= "1" && rankChar <= "8", "Invalid rank")
-
-        let file = Int(fileChar.asciiValue! - Character("a").asciiValue!)
-        let rank = Int(rankChar.asciiValue! - Character("1").asciiValue!)
-
-        return rank * 8 + file
     }
 }

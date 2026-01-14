@@ -39,7 +39,7 @@ final class AttackDetectorTests: XCTestCase {
     
     // MARK: - Rook
     func testRookAttacksSameFile() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("a1"), type: .rook, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("a1"), type: .rook, color: .white)
         
         let attackedSquares = [
             "a2", "a3", "a4", "a5", "a6", "a7", "a8",
@@ -64,7 +64,7 @@ final class AttackDetectorTests: XCTestCase {
     // MARK: - Bishop
     
     func testBishopAttacksDiagonal() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d3"), type: .bishop, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d3"), type: .bishop, color: .white)
         
         let attackedSquares = [
             "c2", "b1", "e4", "f5", "g6", "h7",
@@ -77,7 +77,7 @@ final class AttackDetectorTests: XCTestCase {
     }
     
     func testBishopDoesNotAttackStraightLine() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d3"), type: .bishop, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d3"), type: .bishop, color: .white)
         
         
         let excludedSquares = [
@@ -106,7 +106,7 @@ final class AttackDetectorTests: XCTestCase {
     
     // MARK: - Queen
     func testQueenAttacksDiagonal() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d2"), type: .queen, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d2"), type: .queen, color: .white)
         
         let attackedSquares = [
             "a2", "b2", "c2", "e2", "f2", "g2", "h2",
@@ -122,7 +122,7 @@ final class AttackDetectorTests: XCTestCase {
     }
     
     func testQueenDoesNotAttackSquares() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d2"), type: .queen, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d2"), type: .queen, color: .white)
         
         let excludedSquares = [
             "a1", "a3", "a4", "a6", "a7", "a8",
@@ -140,14 +140,14 @@ final class AttackDetectorTests: XCTestCase {
     }
     
     func testQueenDoesNotAttackKnightMove() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("b1"), type: .queen, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("b1"), type: .queen, color: .white)
         XCTAssertFalse(AttackDetector.isSquareAttacked("a3", by: .white, board: board))
         XCTAssertFalse(AttackDetector.isSquareAttacked("c3", by: .white, board: board))
     }
     
     // MARK: - Knight
     func testKnightAttacksLShapeOne() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("c3"), type: .knight, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("c3"), type: .knight, color: .white)
         
         let squaresKnightAttacks: Set<String> = [
             "b1",
@@ -166,7 +166,7 @@ final class AttackDetectorTests: XCTestCase {
     }
     
     func testKnightDoesNotAttackOtherSquares() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("c3"), type: .knight, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("c3"), type: .knight, color: .white)
         
         let otherSquares: [String] = [
             // Rank 1
@@ -195,7 +195,7 @@ final class AttackDetectorTests: XCTestCase {
     
     // MARK: - King
     func testKingAttacksAdjacentSquare() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d4"), type: .king, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d4"), type: .king, color: .white)
         
         XCTAssertTrue(AttackDetector.isSquareAttacked("c5", by: .white, board: board))
         XCTAssertTrue(AttackDetector.isSquareAttacked("d5", by: .white, board: board))
@@ -218,7 +218,7 @@ final class AttackDetectorTests: XCTestCase {
     }
     
     func testKingDoesNotAttackDistantSquare() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("d4"), type: .king, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("d4"), type: .king, color: .white)
         XCTAssertFalse(AttackDetector.isSquareAttacked("a1", by: .white, board: board))
         XCTAssertFalse(AttackDetector.isSquareAttacked("a8", by: .white, board: board))
         XCTAssertFalse(AttackDetector.isSquareAttacked("h1", by: .white, board: board))
@@ -227,14 +227,14 @@ final class AttackDetectorTests: XCTestCase {
     
     // MARK: - Pawn (White)
     func testWhitePawnAttacksUpLeft() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("b2"), type: .pawn, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("b2"), type: .pawn, color: .white)
         
         XCTAssertTrue(AttackDetector.isSquareAttacked("a3", by: .white, board: board))
         XCTAssertTrue(AttackDetector.isSquareAttacked("c3", by: .white, board: board))
     }
     
     func testWhitePawnDoesNotAnywhereIllegal() {
-        let board = boardWithPiece(at: AttackDetector.squareIndex("b2"), type: .pawn, color: .white)
+        let board = boardWithPiece(at: CoordinateUtil.squareIndex("b2"), type: .pawn, color: .white)
         
         XCTAssertFalse(AttackDetector.isSquareAttacked("b3", by: .white, board: board))
         XCTAssertFalse(AttackDetector.isSquareAttacked("a2", by: .white, board: board))
@@ -258,9 +258,9 @@ final class AttackDetectorTests: XCTestCase {
     
     // MARK: - Check that does not attack when piece is blocking
     func testRookAttacksSameFileButNotWhenBlocked() {
-        var board = boardWithPiece(at: AttackDetector.squareIndex("a1"), type: .rook, color: .white)
-        board.squares[AttackDetector.squareIndex("a5")] = Piece(type: .pawn, color: .black)
-        board.squares[AttackDetector.squareIndex("f1")] = Piece(type: .pawn, color: .black)
+        var board = boardWithPiece(at: CoordinateUtil.squareIndex("a1"), type: .rook, color: .white)
+        board.squares[CoordinateUtil.squareIndex("a5")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .pawn, color: .black)
         
         let attackedSquares = [
             "a2", "a3", "a4", "a5",
@@ -282,14 +282,14 @@ final class AttackDetectorTests: XCTestCase {
     
     func testBishopAttacksDiagonalsButNotWhenBlocked() {
         var board = boardWithPiece(
-            at: AttackDetector.squareIndex("c1"),
+            at: CoordinateUtil.squareIndex("c1"),
             type: .bishop,
             color: .white
         )
         
         // Blockers
-        board.squares[AttackDetector.squareIndex("f4")] = Piece(type: .pawn, color: .black)
-        board.squares[AttackDetector.squareIndex("a3")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("f4")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("a3")] = Piece(type: .pawn, color: .black)
 
         let attackedSquares = [
             // Up-right diagonal until blocked
@@ -321,15 +321,15 @@ final class AttackDetectorTests: XCTestCase {
     
     func testQueenAttacksRanksFilesAndDiagonalsButNotWhenBlocked() {
         var board = boardWithPiece(
-            at: AttackDetector.squareIndex("d4"),
+            at: CoordinateUtil.squareIndex("d4"),
             type: .queen,
             color: .white
         )
         
         // Blockers
-        board.squares[AttackDetector.squareIndex("d6")] = Piece(type: .pawn, color: .black)
-        board.squares[AttackDetector.squareIndex("f4")] = Piece(type: .pawn, color: .black)
-        board.squares[AttackDetector.squareIndex("b2")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("d6")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("f4")] = Piece(type: .pawn, color: .black)
+        board.squares[CoordinateUtil.squareIndex("b2")] = Piece(type: .pawn, color: .black)
 
         let attackedSquares = [
             // File
@@ -366,7 +366,7 @@ final class AttackDetectorTests: XCTestCase {
     
     func testKnightAttacksAllEightSquaresEvenWhenBlocked() {
         var board = boardWithPiece(
-            at: AttackDetector.squareIndex("d4"),
+            at: CoordinateUtil.squareIndex("d4"),
             type: .knight,
             color: .white
         )
@@ -378,7 +378,7 @@ final class AttackDetectorTests: XCTestCase {
         ]
         
         blockingSquares.forEach {
-            board.squares[AttackDetector.squareIndex($0)] =
+            board.squares[CoordinateUtil.squareIndex($0)] =
                 Piece(type: .pawn, color: .black)
         }
 
