@@ -15,4 +15,9 @@ public enum PieceType: String {
 public struct Piece {
     public let type: PieceType
     public let color: Color
+    
+    public init(type: PieceType, color: Color) {
+        self.type = type
+        self.color = color
+    }
 }
