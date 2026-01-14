@@ -1,4 +1,5 @@
 
+/// A class to represent a Chess Game
 public final class Game {
     public private(set) var board: Board
 
@@ -10,10 +11,10 @@ public final class Game {
         board = Board(fen: fen)
     }
     
-    /// SAN meaning Standard Algebraic Notation
+    /// "san" meaning Standard Algebraic Notation
     /// Allows making a move with algebraic notation only
-    public func make(moveAsSan: String) throws -> Bool {
-        let algebraic = try AlgebraicParser.parse(moveAsSan)
+    public func make(move san: String) throws -> Bool {
+        let algebraic = try AlgebraicParser.parse(san)
         let resolved = try MoveResolver.resolve(algebraic: algebraic, board: board)
         return make(move: resolved)
     }
