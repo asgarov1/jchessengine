@@ -12,12 +12,12 @@ public enum MoveResolutionError: Error {
 
 public enum MoveResolver {
     
-    static func resolve(san: String, board: Board) -> Move {
+    static func resolve(san: String, board: Board) throws -> Move {
         let parsedSan = SanParser.parse(san)
-        return MoveResolver.resolve(parsed: parsedSan, board: board)
+        return try MoveResolver.resolve(parsed: parsedSan, board: board)
     }
     
-    static func resolve(parsed: ParsedSAN, board: Board) -> Move {
+    static func resolve(parsed: ParsedSAN, board: Board) throws -> Move {
         let color = board.sideToMove
         
         var moves: [Move] = []
@@ -40,7 +40,16 @@ public enum MoveResolver {
             }
         }
         
-        precondition(moves.count == 1, "Ambiguous or illegal SAN: \(parsed.originalSan)")
-        return moves[0]
+        switch moves.count {
+        case 1:
+            return moves[0]
+        case 0:
+            throw SANResolutionError.noMatchingMove(parsed.originalSan)
+        default:
+            throw SANResolutionError.ambiguousMove(
+                parsed.originalSan,
+                candidates: moves
+            )
+        }
     }
 }

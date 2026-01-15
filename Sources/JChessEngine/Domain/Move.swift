@@ -41,7 +41,7 @@ public struct Move {
         self.type = type
     }
     
-    public init(san: String, board: Board) {
+    public init(san: String, board: Board) throws {
         let stripped = san
             .replacingOccurrences(of: "+", with: "")
             .replacingOccurrences(of: "#", with: "")
@@ -65,7 +65,7 @@ public struct Move {
 
         let parsed = SanParser.parse(stripped)
 
-        self = MoveResolver.resolve(
+        self = try MoveResolver.resolve(
             parsed: parsed,
             board: board
         )

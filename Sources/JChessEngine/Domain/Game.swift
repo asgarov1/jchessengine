@@ -20,7 +20,7 @@ public final class Game {
     /// "san" meaning Standard Algebraic Notation
     /// Allows making a move with algebraic notation only
     public func make(move san: String) throws -> Bool {
-        let resolved: Move = MoveResolver.resolve(san: san, board: board)
+        let resolved: Move = try MoveResolver.resolve(san: san, board: board)
         return make(move: resolved)
     }
     
