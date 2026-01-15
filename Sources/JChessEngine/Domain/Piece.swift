@@ -26,6 +26,17 @@ public enum PieceType: String {
             fatalError("Invalid SAN piece: \(c)")
         }
     }
+    
+    var sanLetter: String {
+            switch self {
+            case .king:   return "K"
+            case .queen:  return "Q"
+            case .rook:   return "R"
+            case .bishop: return "B"
+            case .knight: return "N"
+            case .pawn:   return ""
+            }
+        }
 }
 
 public struct Piece {

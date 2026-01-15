@@ -18,6 +18,10 @@ public final class Game {
         return make(move: resolved)
     }
     
+    public func make(from: String, to: String) throws -> Bool {
+        return make(move: Move(from: from, to: to))
+    }
+    
     public func make(move: Move) -> Bool {
         guard MoveValidator.isLegal(move: move, on: board) else { return false }
 

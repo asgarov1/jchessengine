@@ -52,4 +52,8 @@ public struct Board {
     public static func startingPosition() -> Board {
         Board(fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     }
+    
+    public func convertToSan(move: Move) -> String {
+        return MoveUtil.san(for: move, on: self)
+    }
 }
