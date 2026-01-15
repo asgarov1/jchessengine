@@ -44,6 +44,11 @@ public struct Board {
         )
     }
     
+    public mutating func set(piece: Piece, at: String) {
+        let index = CoordinateUtil.squareIndex(at)
+        squares[index] = piece
+    }
+    
     public static func startingPosition() -> Board {
         Board(fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     }
