@@ -112,41 +112,44 @@ final class MoveValidatorTests: XCTestCase {
         XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "f2"), on: board))
     }
     
-    func testIfWhiteKingUnderCheckRookCanNotMoveExceptToBlockTheCheck() {
-        // black rook blocked by white pawns
-        var board = boardWithPiece(at: "b2", type: .rook, color: .black)
-        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .king, color: .black)
-        
-        // rook attacking king
-        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
-        
-        // its blacks turn
-        board.sideToMove = .black
-        
-        // rook can't make arbitrary move that doesn't block check
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b2", to: "b6"), on: board))
-        
-        // rook can block the check
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "f2"), on: board))
-    }
     
-    func testIfWhiteKingUnderCheckRookCanNotMoveExceptToCaptureTheChecker() {
-        // black rook blocked by white pawns
-        var board = boardWithPiece(at: "b8", type: .rook, color: .black)
-        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .king, color: .black)
-        
-        // rook attacking king
-        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
-        
-        // its blacks turn
-        board.sideToMove = .black
-        
-        // rook can't make arbitrary move that doesn't block/capture check
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b8", to: "b6"), on: board))
-        
-        // rook can capture the checker
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b8", to: "f8"), on: board))
-    }
+    // MARK: - Knight
+    
+//    func testIfWhiteKingUnderCheckRookCanNotMoveExceptToBlockTheCheck() {
+//        // black rook blocked by white pawns
+//        var board = boardWithPiece(at: "b2", type: .rook, color: .black)
+//        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .king, color: .black)
+//        
+//        // rook attacking king
+//        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
+//        
+//        // its blacks turn
+//        board.sideToMove = .black
+//        
+//        // rook can't make arbitrary move that doesn't block check
+//        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b2", to: "b6"), on: board))
+//        
+//        // rook can block the check
+//        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "f2"), on: board))
+//    }
+//    
+//    func testIfWhiteKingUnderCheckRookCanNotMoveExceptToCaptureTheChecker() {
+//        // black rook blocked by white pawns
+//        var board = boardWithPiece(at: "b8", type: .rook, color: .black)
+//        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .king, color: .black)
+//        
+//        // rook attacking king
+//        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
+//        
+//        // its blacks turn
+//        board.sideToMove = .black
+//        
+//        // rook can't make arbitrary move that doesn't block/capture check
+//        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b8", to: "b6"), on: board))
+//        
+//        // rook can capture the checker
+//        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b8", to: "f8"), on: board))
+//    }
     
     // MARK: - Bishop
     

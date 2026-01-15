@@ -21,25 +21,25 @@ public enum AttackDetector {
 
             case .rook:
                 if dx == 0 {
-                    if MovementUtil.isPathClear(from: i, to: square, board: board) {
+                    if MoveUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 } else if dy == 0 {
-                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
+                    if  MoveUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }
 
             case .bishop:
                 if abs(dx) == abs(dy) {
-                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
+                    if  MoveUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }
 
             case .queen:
                 if dx == 0 || dy == 0 || abs(dx) == abs(dy) {
-                    if  MovementUtil.isPathClear(from: i, to: square, board: board) {
+                    if  MoveUtil.isPathClear(from: i, to: square, board: board) {
                         return true
                     }
                 }

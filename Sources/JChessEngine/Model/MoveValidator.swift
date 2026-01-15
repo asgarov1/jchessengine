@@ -1,104 +1,121 @@
 
 public enum MoveValidator {
-
+    
     public static func isLegal(move: Move, on board: Board) -> Bool {
         guard let piece = board.squares[move.from] else { return false }
         if piece.color != board.sideToMove { return false }
-
+        
         let target = board.squares[move.to]
-
+        
         // cannot capture own piece
         if let target, target.color == piece.color {
             return false
         }
-
+        
         // Step 1: movement validation
         let moveIsValid: Bool
-
+        
         switch move.type {
-
+            
         case .castleKingSide:
             moveIsValid = canCastle(kingSide: true, board: board)
-
+            
         case .castleQueenSide:
             moveIsValid = canCastle(kingSide: false, board: board)
-
+            
         case .normal:
-            guard basicMovement(piece: piece, move: move, target: target) else {
+            guard basicMovement(piece: piece, move: move, target: target, board: board) else {
                 return false
             }
-
+            
             if piece.type.isSliding {
-                guard MovementUtil.isPathClear(from: move.from, to: move.to, board: board) else {
+                guard MoveUtil.isPathClear(from: move.from, to: move.to, board: board) else {
                     return false
                 }
             }
-
+            
             moveIsValid = true
         }
-
+        
         if !moveIsValid { return false }
-
+        
         // Step 2: king safety (APPLIES TO ALL MOVE TYPES)
         return doesNotLeaveKingInCheck(move: move, board: board)
     }
-
-
+    
+    
     private static func basicMovement(
         piece: Piece,
         move: Move,
-        target: Piece?
+        target: Piece?,
+        board: Board
     ) -> Bool {
-
+        
         let fromFile = move.from % 8
         let fromRank = move.from / 8
         let toFile = move.to % 8
         let toRank = move.to / 8
-
+        
         let dx = abs(fromFile - toFile)
         let dy = abs(fromRank - toRank)
-
+        
         switch piece.type {
-
+            
         case .rook:
             return dx == 0 || dy == 0
-
+            
         case .bishop:
             return dx == dy
-
+            
         case .queen:
             return dx == dy || dx == 0 || dy == 0
-
+            
         case .knight:
             return (dx == 1 && dy == 2) || (dx == 2 && dy == 1)
-
+            
         case .king:
             return dx <= 1 && dy <= 1
-
+            
         case .pawn:
             let direction = piece.color == .white ? 1 : -1
-
+            let startRank = piece.color == .white ? 1 : 6
+            
             // capture
             if target != nil {
                 return dx == 1 && (toRank - fromRank) == direction
             }
-
-            // quiet move
-            return dx == 0 && (toRank - fromRank) == direction
+            
+            // single push
+            if dx == 0 && (toRank - fromRank) == direction {
+                return true
+            }
+            
+            // double push from starting position
+            if dx == 0 &&
+                fromRank == startRank &&
+                (toRank - fromRank) == 2 * direction {
+                
+                let intermediateRank = fromRank + direction
+                let intermediateSquare = intermediateRank * 8 + fromFile
+                
+                return board.squares[intermediateSquare] == nil
+            }
+            
+            return false
         }
     }
-
+    
     private static func canCastle(kingSide: Bool, board: Board) -> Bool {
         let color = board.sideToMove
         let rank = (color == .white) ? 0 : 7
         let kingSquare = rank * 8 + 4
-
+        
         let rightsOK = kingSide
-            ? (color == .white ? board.castlingRights.whiteKingSide : board.castlingRights.blackKingSide)
-            : (color == .white ? board.castlingRights.whiteQueenSide : board.castlingRights.blackQueenSide)
-
+        ? (color == .white ? board.castlingRights.whiteKingSide : board.castlingRights.blackKingSide)
+        : (color == .white ? board.castlingRights.whiteQueenSide : board.castlingRights.blackQueenSide)
+        
         if !rightsOK { return false }
-
+        
         let between = kingSide ? [5,6] : [1,2,3]
         for f in between {
             let sq = rank * 8 + f
@@ -107,11 +124,11 @@ public enum MoveValidator {
                 return false
             }
         }
-
+        
         if AttackDetector.isSquareAttacked(kingSquare, by: color.opposite, board: board) {
             return false
         }
-
+        
         return true
     }
     
@@ -127,7 +144,7 @@ public enum MoveValidator {
                 board: board
             )
         }
-
+        
         // simulateMove
         var testBoard = board.copy()
         testBoard.squares[move.to] = testBoard.squares[move.from]

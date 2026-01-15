@@ -4,7 +4,7 @@
 //
 //  Created by Javid Asgarov on 14.01.26.
 //
-public final class MovementUtil {
+public final class MoveUtil {
     
     public static func isPathClear(from: Int, to: Int, board: Board) -> Bool {
         let fromFile = from % 8

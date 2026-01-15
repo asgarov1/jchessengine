@@ -14,6 +14,18 @@ public enum PieceType: String {
     var isSliding: Bool {
         self == .rook || self == .bishop || self == .queen
     }
+    
+    static func fromSAN(_ c: Character) -> PieceType {
+        switch c {
+        case "N": return .knight
+        case "B": return .bishop
+        case "R": return .rook
+        case "Q": return .queen
+        case "K": return .king
+        default:
+            fatalError("Invalid SAN piece: \(c)")
+        }
+    }
 }
 
 public struct Piece {

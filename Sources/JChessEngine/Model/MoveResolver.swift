@@ -11,51 +11,36 @@ public enum MoveResolutionError: Error {
 }
 
 public enum MoveResolver {
-
-    public static func resolve(
-        algebraic: AlgebraicMove,
-        board: Board
-    ) throws -> Move {
-
-        // Castling
-        if let castle = algebraic.castling {
-            let from = board.sideToMove == .white ? 4 : 60
-            let to = castle == .castleKingSide
-                ? (board.sideToMove == .white ? 6 : 62)
-                : (board.sideToMove == .white ? 2 : 58)
-
-            let move = Move(from: from, to: to, type: castle)
-            guard MoveValidator.isLegal(move: move, on: board) else {
-                throw MoveResolutionError.illegal
-            }
-            return move
-        }
-
-        var candidates: [Int] = []
-
+    
+    static func resolve(san: String, board: Board) -> Move {
+        let parsedSan = SanParser.parse(san)
+        return MoveResolver.resolve(parsed: parsedSan, board: board)
+    }
+    
+    static func resolve(parsed: ParsedSAN, board: Board) -> Move {
+        let color = board.sideToMove
+        
+        var moves: [Move] = []
+        
         for from in 0..<64 {
-            guard let p = board.squares[from],
-                  p.color == board.sideToMove,
-                  p.type == algebraic.piece else { continue }
-
-            let move = Move(from: from, to: algebraic.destination)
+            guard let piece = board.squares[from],
+                  piece.color == color,
+                  piece.type == parsed.pieceType else { continue }
+            
+            let file = from % 8
+            let rank = from / 8
+            
+            if let df = parsed.disambiguationFile, df != file { continue }
+            if let dr = parsed.disambiguationRank, dr != rank { continue }
+            
+            let move = Move(from: from, to: parsed.to)
+            
             if MoveValidator.isLegal(move: move, on: board) {
-                candidates.append(from)
+                moves.append(move)
             }
         }
-
-        let filtered = candidates.filter { sq in
-            if let f = algebraic.fileHint, sq % 8 != f { return false }
-            if let r = algebraic.rankHint, sq / 8 != r { return false }
-            return true
-        }
-
-        guard filtered.count == 1 else {
-            throw filtered.isEmpty
-                ? MoveResolutionError.notFound
-                : MoveResolutionError.ambiguous
-        }
-
-        return Move(from: filtered[0], to: algebraic.destination)
+        
+        precondition(moves.count == 1, "Ambiguous or illegal SAN: \(parsed.originalSan)")
+        return moves[0]
     }
 }

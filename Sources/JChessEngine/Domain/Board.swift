@@ -25,7 +25,7 @@ public struct Board {
         self.castlingRights = castlingRights
     }
     
-    func kingSquare(of color: Color) -> Int {
+    public func kingSquare(of color: Color) -> Int {
         for i in 0..<64 {
             if let piece = squares[i],
                piece.type == .king,
@@ -42,5 +42,9 @@ public struct Board {
             sideToMove: self.sideToMove,
             castlingRights: self.castlingRights
         )
+    }
+    
+    public static func startingPosition() -> Board {
+        Board(fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     }
 }
