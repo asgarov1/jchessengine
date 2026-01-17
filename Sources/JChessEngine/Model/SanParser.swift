@@ -17,9 +17,18 @@ struct ParsedSAN {
 
 enum SanParser {
 
-    static func parse(_ san: String) -> ParsedSAN {
+    static func parse(_ san: String) throws -> ParsedSAN {
 
         let destination = String(san.suffix(2))
+        guard destination.count == 2,
+              let fileChar = destination.first,
+              let rankChar = destination.last,
+              fileChar >= "a", fileChar <= "h",
+              rankChar >= "1", rankChar <= "8"
+        else {
+            throw SANResolutionError.illegalMove(san)
+        }
+        
         let to = Move.squareIndex(destination)
 
         var body = String(san.dropLast(2))

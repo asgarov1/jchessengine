@@ -63,7 +63,7 @@ public struct Move {
             return
         }
 
-        let parsed = SanParser.parse(stripped)
+        let parsed = try SanParser.parse(stripped)
 
         self = try MoveResolver.resolve(
             parsed: parsed,

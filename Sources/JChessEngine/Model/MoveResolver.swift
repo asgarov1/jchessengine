@@ -13,7 +13,7 @@ public enum MoveResolutionError: Error {
 public enum MoveResolver {
     
     static func resolve(san: String, board: Board) throws -> Move {
-        let parsedSan = SanParser.parse(san)
+        let parsedSan = try SanParser.parse(san)
         return try MoveResolver.resolve(parsed: parsedSan, board: board)
     }
     
