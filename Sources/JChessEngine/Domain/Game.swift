@@ -7,14 +7,28 @@ public enum GameResult: Equatable {
 
 /// A class to represent a Chess Game
 public final class Game {
-    public private(set) var board: Board
-    
+    public internal(set) var board: Board
+
     public init() {
         board = Board(fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     }
     
     public init(fen: String) {
         board = Board(fen: fen)
+    }
+    
+    public func make(from: String, to: String, type: MoveType = .normal) throws -> Bool {
+        let fromInt = MoveUtil.squareIndex(from)
+        let toInt = MoveUtil.squareIndex(to)
+        return try make(from: fromInt, to: toInt, type: type)
+    }
+    
+    public func make(from: Int, to: Int, type: MoveType = .normal) throws -> Bool {
+        let san = SanUtil.san(from: from, to: to, type: .normal, on: self.board)
+        guard !san.isEmpty else {
+            return false
+        }
+        return try make(move: san)
     }
     
     /// "san" meaning Standard Algebraic Notation
@@ -24,12 +38,8 @@ public final class Game {
         return make(move: resolved)
     }
     
-    public func make(from: String, to: String) throws -> Bool {
-        return make(move: Move(from: from, to: to))
-    }
-    
     public func make(move: Move) -> Bool {
-        guard MoveValidator.isLegal(move: move, on: board) else { return false }
+        guard MoveValidator.isLegal(from: move.from, to: move.to, type: move.type, on: board) else { return false }
         
         let piece = board.squares[move.from]
         board.squares[move.from] = nil
@@ -53,6 +63,9 @@ public final class Game {
         }
         
         board.sideToMove = board.sideToMove.opposite
+        
+        // only after the move was successfully made
+        board.moveHistory.append(move)
         return true
     }
     
@@ -66,9 +79,10 @@ public final class Game {
                   piece.color == board.sideToMove else { continue }
             
             for to in 0..<64 {
-                let move = Move(from: from, to: to)
-                if MoveValidator.isLegal(move: move, on: board) {
-                    return .ongoing
+                for type in MoveType.allCases {
+                    if MoveValidator.isLegal(from: from, to: to, type: type, on: board) {
+                        return .ongoing
+                    }
                 }
             }
         }
@@ -89,4 +103,23 @@ public final class Game {
         )
     }
     
+    public func pgn() -> String {
+        var result: [String] = []
+        var moveNumber = 1
+
+        for (index, move) in board.moveHistory.enumerated() {
+            // White move
+            if index % 2 == 0 {
+                result.append("\(moveNumber).")
+            }
+
+            result.append(move.san ?? "")
+
+            if index % 2 == 1 {
+                moveNumber += 1
+            }
+        }
+
+        return result.joined(separator: " ")
+    }
 }

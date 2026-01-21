@@ -7,26 +7,13 @@
 import XCTest
 import JChessEngine
 
-final class MoveUtilTests: XCTestCase {
+final class SanUtilTests: XCTestCase {
     
     func testThatMoveGetsCorrectlyParsedToSan() {
         let board = Board.startingPosition()
         
-        let testCases: [(move: Move, expectedSan: String)] = [
-            (Move(from: "d2", to: "d4"), "d4"),
-            (Move(from: "e2", to: "e4"), "e4"),
-            (Move(from: "g1", to: "f3"), "Nf3")
-        ]
-        
-        for testCase in testCases {
-            let board = Board.startingPosition()
-            let san = MoveUtil.san(for: testCase.move, on: board)
-            
-            XCTAssertEqual(
-                san,
-                testCase.expectedSan,
-                "Incorrect SAN for move \(testCase.move)"
-            )
-        }
+        XCTAssertEqual(SanUtil.san(from: "d2", to: "d4", type: .normal, on: board), "d4")
+        XCTAssertEqual(SanUtil.san(from: "e2", to: "e4", type: .normal, on: board), "e4")
+        XCTAssertEqual(SanUtil.san(from: "g1", to: "f3", type: .normal, on: board), "Nf3")
     }
 }

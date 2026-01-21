@@ -9,16 +9,42 @@ import Foundation
 struct ParsedSAN {
     let originalSan: String
     let pieceType: PieceType
-    let to: Int
+    let to: Int?
     let disambiguationFile: Int?
     let disambiguationRank: Int?
     let isCapture: Bool
+    let moveType: MoveType?
 }
 
 enum SanParser {
 
     static func parse(_ san: String) throws -> ParsedSAN {
+        // --- CASTLING (early exit) ---
+        if san == "O-O" || san == "0-0" {
+            return ParsedSAN(
+                originalSan: san,
+                pieceType: .king,
+                to: nil,
+                disambiguationFile: nil,
+                disambiguationRank: nil,
+                isCapture: false,
+                moveType: .castleKingSide
+            )
+        }
 
+        if san == "O-O-O" || san == "0-0-0" {
+            return ParsedSAN(
+                originalSan: san,
+                pieceType: .king,
+                to: nil,
+                disambiguationFile: nil,
+                disambiguationRank: nil,
+                isCapture: false,
+                moveType: .castleQueenSide
+            )
+        }
+
+        // --- NORMAL SAN PARSING ---
         let destination = String(san.suffix(2))
         guard destination.count == 2,
               let fileChar = destination.first,
@@ -28,8 +54,8 @@ enum SanParser {
         else {
             throw SANResolutionError.illegalMove(san)
         }
-        
-        let to = Move.squareIndex(destination)
+
+        let to = MoveUtil.squareIndex(destination)
 
         var body = String(san.dropLast(2))
         let isCapture = body.contains("x")
@@ -48,9 +74,11 @@ enum SanParser {
 
         for c in body {
             if c.isLetter {
-                disFile = Int(c.unicodeScalars.first!.value - Character("a").unicodeScalars.first!.value)
+                disFile = Int(c.unicodeScalars.first!.value
+                              - Character("a").unicodeScalars.first!.value)
             } else if c.isNumber {
-                disRank = Int(c.unicodeScalars.first!.value - Character("1").unicodeScalars.first!.value)
+                disRank = Int(c.unicodeScalars.first!.value
+                              - Character("1").unicodeScalars.first!.value)
             }
         }
 
@@ -60,7 +88,8 @@ enum SanParser {
             to: to,
             disambiguationFile: disFile,
             disambiguationRank: disRank,
-            isCapture: isCapture
+            isCapture: isCapture,
+            moveType: .normal
         )
     }
 }

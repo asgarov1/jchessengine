@@ -9,82 +9,82 @@ import JChessEngine
 
 final class MoveTests: XCTestCase {
     
-    func testKingSideCastlingWithLetterO() {
+    func testKingSideCastlingWithLetterO() throws {
         let board = Board.startingPosition()
         let kingFrom = board.kingSquare(of: board.sideToMove)
         
-        let move = Move(san: "O-O", board: board)
+        let move = try Move(san: "O-O", board: board)
         
         XCTAssertEqual(move.from, kingFrom)
         XCTAssertEqual(move.to, kingFrom + 2)
         XCTAssertEqual(move.type, .castleKingSide)
     }
     
-    func testKingSideCastlingWithZero() {
+    func testKingSideCastlingWithZero() throws {
         let board = Board.startingPosition()
         let kingFrom = board.kingSquare(of: board.sideToMove)
         
-        let move = Move(san: "0-0", board: board)
+        let move = try Move(san: "0-0", board: board)
         
         XCTAssertEqual(move.from, kingFrom)
         XCTAssertEqual(move.to, kingFrom + 2)
         XCTAssertEqual(move.type, .castleKingSide)
     }
     
-    func testQueenSideCastlingWithLetterO() {
+    func testQueenSideCastlingWithLetterO() throws {
         let board = Board.startingPosition()
         let kingFrom = board.kingSquare(of: board.sideToMove)
         
-        let move = Move(san: "O-O-O", board: board)
+        let move = try Move(san: "O-O-O", board: board)
         
         XCTAssertEqual(move.from, kingFrom)
         XCTAssertEqual(move.to, kingFrom - 2)
         XCTAssertEqual(move.type, .castleQueenSide)
     }
     
-    func testQueenSideCastlingWithZero() {
+    func testQueenSideCastlingWithZero() throws {
         let board = Board.startingPosition()
         let kingFrom = board.kingSquare(of: board.sideToMove)
         
-        let move = Move(san: "0-0-0", board: board)
+        let move = try Move(san: "0-0-0", board: board)
         
         XCTAssertEqual(move.from, kingFrom)
         XCTAssertEqual(move.to, kingFrom - 2)
         XCTAssertEqual(move.type, .castleQueenSide)
     }
     
-    func testSanStripsCheckSymbol() {
+    func testSanStripsCheckSymbol() throws {
         let board = Board.startingPosition()
         
-        print(MoveValidator.isLegal(move: Move(from: "e2", to: "e4"), on: board))
+        print(MoveValidator.isLegal(from: "e2", to: "e4", type: .normal, on: board))
         
-        let moveWithoutCheck = Move(san: "e4", board: board)
-        let moveWithCheck = Move(san: "e4+", board: board)
+        let moveWithoutCheck = try Move(san: "e4", board: board)
+        let moveWithCheck = try Move(san: "e4+", board: board)
         
         XCTAssertEqual(moveWithoutCheck.from, moveWithCheck.from)
         XCTAssertEqual(moveWithoutCheck.to, moveWithCheck.to)
         XCTAssertEqual(moveWithoutCheck.type, moveWithCheck.type)
     }
     
-    func testSanStripsCheckmateSymbol() {
+    func testSanStripsCheckmateSymbol() throws {
         var board = Board()
         board.squares[CoordinateUtil.squareIndex("b1")] = Piece(type: .queen, color: .white)
         
-        let moveWithoutMate = Move(san: "Qh7", board: board)
-        let moveWithMate = Move(san: "Qh7#", board: board)
+        let moveWithoutMate = try Move(san: "Qh7", board: board)
+        let moveWithMate = try Move(san: "Qh7#", board: board)
         
         XCTAssertEqual(moveWithoutMate.from, moveWithMate.from)
         XCTAssertEqual(moveWithoutMate.to, moveWithMate.to)
         XCTAssertEqual(moveWithoutMate.type, moveWithMate.type)
     }
     
-    func testNormalSanMoveResolvesCorrectly() {
+    func testNormalSanMoveResolvesCorrectly() throws {
         let board = Board.startingPosition()
         
-        let move = Move(san: "e4", board: board)
+        let move = try Move(san: "e4", board: board)
         
         XCTAssertEqual(move.type, .normal)
-        XCTAssertEqual(move.from, Move.squareIndex("e2"))
-        XCTAssertEqual(move.to, Move.squareIndex("e4"))
+        XCTAssertEqual(move.from, MoveUtil.squareIndex("e2"))
+        XCTAssertEqual(move.to, MoveUtil.squareIndex("e4"))
     }
 }

@@ -2,7 +2,7 @@
 
 import Foundation
 
-public enum MoveType {
+public enum MoveType: CaseIterable {
     case normal
     case castleKingSide
     case castleQueenSide
@@ -18,26 +18,23 @@ public enum MoveType {
 /// 40 = a6   41 = b6   42 = c6   43 = d6   44 = e6   45 = f6   46 = g6   47 = h6
 /// 48 = a7   49 = b7   50 = c7   51 = d7   52 = e7   53 = f7   54 = g7   55 = h7
 /// 56 = a8   57 = b8   58 = c8   59 = d8   60 = e8   61 = f8   62 = g8   63 = h8
-public struct Move {
+public struct Move: Equatable {
     public let from: Int
     public let to: Int
     public let type: MoveType
+    public var san: String?
     
-    public init(from: Int, to: Int) {
+    public init(from: Int, to: Int, san: String) {
         self.from = from
         self.to = to
+        self.san = san
         self.type = .normal
     }
     
-    public init(from: Int, to: Int, type: MoveType = .normal) {
+    public init(from: Int, to: Int, san: String, type: MoveType) {
         self.from = from
         self.to = to
-        self.type = type
-    }
-    
-    public init(from: String, to: String, type: MoveType = .normal) {
-        self.from = Move.squareIndex(from)
-        self.to = Move.squareIndex(to)
+        self.san = san
         self.type = type
     }
     
@@ -52,6 +49,7 @@ public struct Move {
             self.from = kingFrom
             self.to = kingFrom + 2
             self.type = .castleKingSide
+            self.san = "O-O"
             return
         }
 
@@ -60,6 +58,7 @@ public struct Move {
             self.from = kingFrom
             self.to = kingFrom - 2
             self.type = .castleQueenSide
+            self.san = "O-O-O"
             return
         }
 
@@ -70,12 +69,12 @@ public struct Move {
             board: board
         )
     }
-
     
-    public static func squareIndex(_ s: String) -> Int {
-        let chars = Array(s.lowercased())
-        let file = Int(chars[0].unicodeScalars.first!.value - Character("a").unicodeScalars.first!.value)
-        let rank = Int(chars[1].unicodeScalars.first!.value - Character("1").unicodeScalars.first!.value)
-        return rank * 8 + file
+    public func fromText() -> String {
+        MoveUtil.toCoordinate(from)
+    }
+    
+    public func toText() -> String {
+        MoveUtil.toCoordinate(to)
     }
 }

@@ -37,17 +37,17 @@ final class MoveValidatorTests: XCTestCase {
     // MARK: - Empty / Color Filtering
     func testNoPiecesReturnsFalse() {
         let board = emptyBoard()
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "d2", to: "d4"), on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "d2", to: "d4", on: board))
     }
     
     func testPieceOfWrongColorReturnsFalse() {
         let board = boardWithPiece(at: "d7", type: .pawn, color: .black)
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "d7", to: "d5"), on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "d7", to: "d5", on: board))
     }
     
     func testPieceOfCorrectColorReturnsTrue() {
         let board = boardWithPiece(at: "d2", type: .pawn, color: .white)
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "d2", to: "d4"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "d2", to: "d4", on: board))
     }
     
     // MARK: - Rook
@@ -60,7 +60,7 @@ final class MoveValidatorTests: XCTestCase {
         ]
         
         attackedSquares.forEach {
-            XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "a1", to: $0), on: board))
+            XCTAssertTrue(MoveValidator.isLegal(from: "a1", to: $0, on: board))
         }
     }
     
@@ -75,7 +75,7 @@ final class MoveValidatorTests: XCTestCase {
         ]
         
         attackedSquares.forEach {
-            XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "a1", to: $0), on: board))
+            XCTAssertTrue(MoveValidator.isLegal(from: "a1", to: $0, on: board))
         }
         
         let blockedSquares = [
@@ -83,7 +83,7 @@ final class MoveValidatorTests: XCTestCase {
             "f1", "g1", "h1"
         ]
         blockedSquares.forEach {
-            XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "a1", to: $0), on: board))
+            XCTAssertFalse(MoveValidator.isLegal(from: "a1", to: $0, on: board))
         }
     }
     
@@ -94,8 +94,8 @@ final class MoveValidatorTests: XCTestCase {
         board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .pawn, color: .black)
 
         // white rook can capture black pawns
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "a1", to: "a6"), on: board))
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "a1", to: "f1"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "a1", to: "a6", on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "a1", to: "f1", on: board))
     }
     
     func testBlackRookCanMoveToSquareIfSquareIsBlockedByPieceItCanCapture() {
@@ -108,8 +108,8 @@ final class MoveValidatorTests: XCTestCase {
         board.sideToMove = .black
         
         // black can capture white pawns
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "b6"), on: board))
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "f2"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "b6", on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "f2", on: board))
     }
     
     
@@ -121,8 +121,8 @@ final class MoveValidatorTests: XCTestCase {
 //        board.squares[CoordinateUtil.squareIndex("f1")] = Piece(type: .king, color: .black)
 //        
 //        // rook attacking king
-//        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
-//        
+//        board.squares[CoordinateUtil.squareIndex("f8")] = Piece(type: .rook, color: .white)
+//        
 //        // its blacks turn
 //        board.sideToMove = .black
 //        
@@ -319,15 +319,15 @@ final class MoveValidatorTests: XCTestCase {
     func testPawnCanBothSingleAndDoublePushFromStartingPosition() {
         let board = boardWithPiece(at: CoordinateUtil.squareIndex("b2"), type: .pawn, color: .white)
 
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "b3"), on: board))
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "b4"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "b3", on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "b4", on: board))
     }
     
     func testPawnCanOnlySinglePushFromNotStartingPosition() {
         let board = boardWithPiece(at: CoordinateUtil.squareIndex("b3"), type: .pawn, color: .white)
 
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b3", to: "b4"), on: board))
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b3", to: "b5"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b3", to: "b4", on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "b3", to: "b5", on: board))
     }
     
     func testPawnCanMoveDiagonalSingleStepIfThereIsAPieceToCapture() {
@@ -335,18 +335,18 @@ final class MoveValidatorTests: XCTestCase {
         board.set(piece: Piece(type: .pawn, color: .black), at: "a3")
         board.set(piece: Piece(type: .pawn, color: .black), at: "c3")
 
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "a3"), on: board))
-        XCTAssertTrue(MoveValidator.isLegal(move: Move(from: "b2", to: "c3"), on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "a3", on: board))
+        XCTAssertTrue(MoveValidator.isLegal(from: "b2", to: "c3", on: board))
         
         // but can't keep traveling diagonally
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b2", to: "d4"), on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "b2", to: "d4", on: board))
     }
     
     func testPawnCanNotMoveDiagonalIfThereIsNoPieceToCapture() {
         let board = boardWithPiece(at: CoordinateUtil.squareIndex("b2"), type: .pawn, color: .white)
 
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b2", to: "a3"), on: board))
-        XCTAssertFalse(MoveValidator.isLegal(move: Move(from: "b2", to: "c3"), on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "b2", to: "a3", on: board))
+        XCTAssertFalse(MoveValidator.isLegal(from: "b2", to: "c3", on: board))
     }
 //
 //    func testWhitePawnDoesNotAnywhereIllegal() {

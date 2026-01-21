@@ -10,6 +10,8 @@ public struct Board {
     public var squares: [Piece?] = Array(repeating: nil, count: 64)
     public var sideToMove: Color = .white
     public var castlingRights = CastlingRights()
+    public internal(set) var moveHistory: [Move] = []
+    var isSimulation: Bool = false
 
     public init() {}
 
@@ -23,6 +25,14 @@ public struct Board {
         self.squares = squares
         self.sideToMove = sideToMove
         self.castlingRights = castlingRights
+    }
+    
+    public init(squares: [Piece?], sideToMove: Color, castlingRights: CastlingRights, isSimulation: Bool) {
+        self.init()
+        self.squares = squares
+        self.sideToMove = sideToMove
+        self.castlingRights = castlingRights
+        self.isSimulation = isSimulation
     }
     
     public func kingSquare(of color: Color) -> Int {
@@ -40,7 +50,8 @@ public struct Board {
         Board(
             squares: self.squares,
             sideToMove: self.sideToMove,
-            castlingRights: self.castlingRights
+            castlingRights: self.castlingRights,
+            isSimulation: true
         )
     }
     
@@ -54,6 +65,10 @@ public struct Board {
     }
     
     public func convertToSan(move: Move) -> String {
-        return MoveUtil.san(for: move, on: self)
+        return SanUtil.san(for: move, on: self)
+    }
+    
+    public func hasMoved(square: Int) -> Bool {
+        return moveHistory.contains{ $0.from == square }
     }
 }
