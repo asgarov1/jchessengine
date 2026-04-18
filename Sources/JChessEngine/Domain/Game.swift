@@ -40,11 +40,27 @@ public final class Game {
     
     public func make(move: Move) -> Bool {
         guard MoveValidator.isLegal(from: move.from, to: move.to, type: move.type, on: board) else { return false }
-        
+
         let piece = board.squares[move.from]
         board.squares[move.from] = nil
         board.squares[move.to] = piece
-        
+
+        // Castling: the king has moved above — the rook also needs to be relocated.
+        if move.type == .castleKingSide || move.type == .castleQueenSide {
+            let rank = board.sideToMove == .white ? 0 : 7
+            let rookFrom: Int
+            let rookTo: Int
+            if move.type == .castleKingSide {
+                rookFrom = rank * 8 + 7 // h1 / h8
+                rookTo   = rank * 8 + 5 // f1 / f8
+            } else {
+                rookFrom = rank * 8 + 0 // a1 / a8
+                rookTo   = rank * 8 + 3 // d1 / d8
+            }
+            board.squares[rookTo] = board.squares[rookFrom]
+            board.squares[rookFrom] = nil
+        }
+
         if piece?.type == .king {
             if board.sideToMove == .white {
                 board.castlingRights.whiteKingSide = false
@@ -54,16 +70,16 @@ public final class Game {
                 board.castlingRights.blackQueenSide = false
             }
         }
-        
+
         if piece?.type == .rook {
             if move.from == 0 { board.castlingRights.whiteQueenSide = false }
             if move.from == 7 { board.castlingRights.whiteKingSide = false }
             if move.from == 56 { board.castlingRights.blackQueenSide = false }
             if move.from == 63 { board.castlingRights.blackKingSide = false }
         }
-        
+
         board.sideToMove = board.sideToMove.opposite
-        
+
         // only after the move was successfully made
         board.moveHistory.append(move)
         return true
