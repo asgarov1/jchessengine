@@ -108,7 +108,8 @@ public enum MoveResolver {
                 from: from,
                 to: to,
                 san: parsed.originalSan,
-                type: parsed.moveType ?? .normal
+                type: parsed.moveType ?? .normal,
+                promotionPiece: parsed.promotionPiece
             )
 
             if MoveValidator.isLegal(

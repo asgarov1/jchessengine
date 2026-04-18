@@ -45,6 +45,49 @@ public final class Game {
         board.squares[move.from] = nil
         board.squares[move.to] = piece
 
+        // --- Pawn promotion ---------------------------------------------------
+        // If a pawn reaches the last rank, replace it with the promotion piece.
+        // If the caller did not specify one, fall back to queen (auto-queen,
+        // "Option B" behaviour — the user typed `exd8+` without `=Q`, we do the
+        // sensible thing rather than silently leaving a pawn on the 8th rank).
+        var finalMove = move
+        if let p = piece, p.type == .pawn {
+            let toRank = move.to / 8
+            let reachedPromotionRank =
+                (p.color == .white && toRank == 7) ||
+                (p.color == .black && toRank == 0)
+
+            if reachedPromotionRank {
+                let promotionType = move.promotionPiece ?? .queen
+                board.squares[move.to] = Piece(type: promotionType, color: p.color)
+
+                // Normalise the recorded SAN so the PGN shows e.g. `exd8=Q+`
+                // even when the user entered the abbreviated `exd8+`.
+                if let originalSan = move.san, !originalSan.contains("=") {
+                    finalMove = Move(
+                        from: move.from,
+                        to: move.to,
+                        san: insertPromotionSuffix(
+                            into: originalSan,
+                            piece: promotionType
+                        ),
+                        type: move.type,
+                        promotionPiece: promotionType
+                    )
+                } else if move.promotionPiece == nil {
+                    // SAN already contained `=X` but the Move struct didn't
+                    // carry it through — keep parity by filling the field.
+                    finalMove = Move(
+                        from: move.from,
+                        to: move.to,
+                        san: move.san ?? "",
+                        type: move.type,
+                        promotionPiece: promotionType
+                    )
+                }
+            }
+        }
+
         // Castling: the king has moved above — the rook also needs to be relocated.
         if move.type == .castleKingSide || move.type == .castleQueenSide {
             let rank = board.sideToMove == .white ? 0 : 7
@@ -81,8 +124,21 @@ public final class Game {
         board.sideToMove = board.sideToMove.opposite
 
         // only after the move was successfully made
-        board.moveHistory.append(move)
+        board.moveHistory.append(finalMove)
         return true
+    }
+
+    /// Inserts a `=Q` / `=N` / `=R` / `=B` suffix into a SAN string, placing it
+    /// before any trailing check (`+`) or checkmate (`#`) marker. Used when we
+    /// auto-promoted a pawn whose input SAN omitted the promotion suffix.
+    private func insertPromotionSuffix(into san: String, piece: PieceType) -> String {
+        let suffix = "=" + piece.sanLetter
+        if san.hasSuffix("+") || san.hasSuffix("#") {
+            let marker = String(san.last!)
+            let base = String(san.dropLast())
+            return base + suffix + marker
+        }
+        return san + suffix
     }
     
     public func fen() -> String {

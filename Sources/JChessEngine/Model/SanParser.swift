@@ -14,38 +14,72 @@ struct ParsedSAN {
     let disambiguationRank: Int?
     let isCapture: Bool
     let moveType: MoveType?
+    /// Promotion piece extracted from a `=Q` / `=N` / `=R` / `=B` suffix.
+    /// `nil` if no suffix was present. Auto-queen fallback is applied later in `Game.make`.
+    let promotionPiece: PieceType?
 }
 
 enum SanParser {
 
-    static func parse(_ san: String) throws -> ParsedSAN {
+    static func parse(_ rawSan: String) throws -> ParsedSAN {
+        // Strip check (`+`) and checkmate (`#`) markers up front so every
+        // call path into the parser behaves the same. `Move.init(san:board:)`
+        // used to do this itself; doing it here means `Game.make(move: "e4+")`
+        // (which goes through `MoveResolver.resolve(san:)`) works too.
+        let san = rawSan
+            .replacingOccurrences(of: "+", with: "")
+            .replacingOccurrences(of: "#", with: "")
+
         // --- CASTLING (early exit) ---
         if san == "O-O" || san == "0-0" {
             return ParsedSAN(
-                originalSan: san,
+                originalSan: rawSan,
                 pieceType: .king,
                 to: nil,
                 disambiguationFile: nil,
                 disambiguationRank: nil,
                 isCapture: false,
-                moveType: .castleKingSide
+                moveType: .castleKingSide,
+                promotionPiece: nil
             )
         }
 
         if san == "O-O-O" || san == "0-0-0" {
             return ParsedSAN(
-                originalSan: san,
+                originalSan: rawSan,
                 pieceType: .king,
                 to: nil,
                 disambiguationFile: nil,
                 disambiguationRank: nil,
                 isCapture: false,
-                moveType: .castleQueenSide
+                moveType: .castleQueenSide,
+                promotionPiece: nil
             )
         }
 
         // --- NORMAL SAN PARSING ---
-        let destination = String(san.suffix(2))
+        // Extract optional promotion suffix (e.g. "=Q") before parsing the
+        // destination square. `=` is the PGN standard separator. If no suffix
+        // is present we leave promotionPiece as nil — Game.make will auto-queen.
+        var sanForParsing = san
+        var promotionPiece: PieceType? = nil
+        if let equalIndex = sanForParsing.firstIndex(of: "=") {
+            let afterEqual = sanForParsing[sanForParsing.index(after: equalIndex)...]
+            guard let promoChar = afterEqual.first else {
+                throw SANResolutionError.illegalMove(san)
+            }
+            switch promoChar {
+            case "Q": promotionPiece = .queen
+            case "R": promotionPiece = .rook
+            case "B": promotionPiece = .bishop
+            case "N": promotionPiece = .knight
+            default:
+                throw SANResolutionError.illegalMove(san)
+            }
+            sanForParsing = String(sanForParsing[..<equalIndex])
+        }
+
+        let destination = String(sanForParsing.suffix(2))
         guard destination.count == 2,
               let fileChar = destination.first,
               let rankChar = destination.last,
@@ -57,7 +91,7 @@ enum SanParser {
 
         let to = MoveUtil.squareIndex(destination)
 
-        var body = String(san.dropLast(2))
+        var body = String(sanForParsing.dropLast(2))
         let isCapture = body.contains("x")
         body = body.replacingOccurrences(of: "x", with: "")
 
@@ -83,13 +117,14 @@ enum SanParser {
         }
 
         return ParsedSAN(
-            originalSan: san,
+            originalSan: rawSan,
             pieceType: pieceType,
             to: to,
             disambiguationFile: disFile,
             disambiguationRank: disRank,
             isCapture: isCapture,
-            moveType: .normal
+            moveType: .normal,
+            promotionPiece: promotionPiece
         )
     }
 }

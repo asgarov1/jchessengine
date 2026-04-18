@@ -23,19 +23,33 @@ public struct Move: Equatable {
     public let to: Int
     public let type: MoveType
     public var san: String?
-    
+    /// For pawn promotion moves, the piece type the pawn is promoted to.
+    /// `nil` for non-promotion moves. When a pawn reaches the last rank with
+    /// `promotionPiece == nil`, `Game.make` defaults to `.queen` (auto-queen).
+    public let promotionPiece: PieceType?
+
     public init(from: Int, to: Int, san: String) {
         self.from = from
         self.to = to
         self.san = san
         self.type = .normal
+        self.promotionPiece = nil
     }
-    
+
     public init(from: Int, to: Int, san: String, type: MoveType) {
         self.from = from
         self.to = to
         self.san = san
         self.type = type
+        self.promotionPiece = nil
+    }
+
+    public init(from: Int, to: Int, san: String, type: MoveType, promotionPiece: PieceType?) {
+        self.from = from
+        self.to = to
+        self.san = san
+        self.type = type
+        self.promotionPiece = promotionPiece
     }
     
     public init(san: String, board: Board) throws {
@@ -50,6 +64,7 @@ public struct Move: Equatable {
             self.to = kingFrom + 2
             self.type = .castleKingSide
             self.san = "O-O"
+            self.promotionPiece = nil
             return
         }
 
@@ -59,6 +74,7 @@ public struct Move: Equatable {
             self.to = kingFrom - 2
             self.type = .castleQueenSide
             self.san = "O-O-O"
+            self.promotionPiece = nil
             return
         }
 
